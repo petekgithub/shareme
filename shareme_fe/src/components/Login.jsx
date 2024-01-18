@@ -6,7 +6,9 @@ import shareVideo from "../assets/share.mp4";
 import logo from "../assets/sharelogo.png";
 
 const Login = () => {
-  const responseGoogle = (response) => {};
+  const responseGoogle = (response) => {
+    console.log(response);
+  };
 
   return (
     <div className="flex justify-start items-center flex-col h-screen">
@@ -27,7 +29,7 @@ const Login = () => {
           </div>
           <div className="shadow-2xl">
             <GoogleLogin
-              clientId="YOUR_GOOGLE_CLIENT_ID"
+              clientId={process.env.REACT_APP_GOOGLE_API_TOKEN}
               render={(renderProps) => (
                 <button
                   type="button"
