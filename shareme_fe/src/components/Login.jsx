@@ -4,11 +4,53 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import shareVideo from "../assets/share.mp4";
 import logo from "../assets/sharelogo.png";
+import { jwtDecode } from "jwt-decode";
+
+import { client } from "../client";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const responseGoogle = (response) => {
-    console.log(response);
+    localStorage.setItem("user", JSON.stringify(response.profileObj));
+    const decodedHeader = jwtDecode(response.credential);
+
+    const { name, sub, picture } = decodedHeader;
+    const doc = {
+      _id: sub,
+      _type: "user",
+      userName: name,
+      image: picture,
+    };
+
+    client.createIfNotExists(doc).then(() => {
+      navigate("/", { replace: true });
+    });
   };
+
+  // const responseGoogle = (response) => {
+  //   console.log("Google Login Response:", response);
+
+  //   if (response && response.profileObj) {
+  //     localStorage.setItem("user", JSON.stringify(response));
+  //     const { clientId, name, imageUrl } = response;
+  //     const doc = {
+  //       _id: clientId,
+  //       _type: "user",
+  //       userName: name,
+  //       image: imageUrl,
+  //     };
+  //     client.createIfNotExists(doc).then(() => {
+  //       navigate("/", { replace: true });
+  //     });
+  //   } else {
+  //     // Handle the case where profileObj is not present in the response
+  //     console.error(
+  //       "Google login failed. Missing profileObj in response.",
+  //       response
+  //     );
+  //   }
+  // };
 
   return (
     <div className="flex justify-start items-center flex-col h-screen">
@@ -27,6 +69,7 @@ const Login = () => {
           <div className="p-5">
             <img src={logo} width="130px" alt="logo" />
           </div>
+
           <div className="shadow-2xl">
             <GoogleLogin
               clientId={process.env.REACT_APP_GOOGLE_API_TOKEN}
@@ -41,7 +84,7 @@ const Login = () => {
                 </button>
               )}
               onSuccess={responseGoogle}
-              onFailure={responseGoogle}
+              onError={responseGoogle}
               cookiePolicy="single_host_origin"
             />
           </div>
